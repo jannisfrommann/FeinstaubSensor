@@ -30,8 +30,8 @@ Temperatur, Luftfeuchtigkeit, Luftdruck
 **OLED Display**
 *Joy-it SSD1306 I2C konfiguration*
 I2C Adresse: 0XC3
-| OLED Pin | ESP32 Pin   |Beschreibung|
-| -------- | ----------- |            |
+| OLED Pin | ESP32 Pin   | Beschreibung |
+| -------- | ----------- |  -------------  |
 | **VCC**  | **3.3V**    |            |
 | **GND**  | **GND**     |            |
 | **SDA**  | **PIN 6** |       I2C Daten        |
