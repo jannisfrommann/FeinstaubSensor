@@ -3,8 +3,11 @@
 📦 Hardwarekomponenten
 
 Es gibt zwei verschiedene I2C Busse um Stabilität zu gewähleisten.
+
 I2C1: SDA = Pin 6, SCL = Pin 7
+
 I2C2: SDA = Pin 18, SCL = Pin 19
+
 
 
 1) Feinstaubsensor  
