@@ -2,6 +2,11 @@
 
 📦 Hardwarekomponenten
 
+Es gibt zwei verschiedene I2C Busse um Stabilität zu gewähleisten.
+I2C1: SDA = Pin 6, SCL = Pin 7
+I2C2: SDA = Pin 18, SCL = Pin 19
+
+
 1) Feinstaubsensor  
 Nova PM sensor SDS011 — PM2.5, PM10
 
@@ -20,8 +25,8 @@ I2C Adresse: 0x76
 
 | BME280 Pin | ESP32 Pin | Beschreibung |
 | ---------- | --------- | ------------ |
-| **SDA**    | **PIN 6** | I2C Daten |
-| **SCL**    | **PIN 7** | I2C Clock |
+| **SDA**    | **PIN 6** | I2C1 Daten |
+| **SCL**    | **PIN 7** | I2C1 Clock |
 | **VCC (3.3V)** | **3.3V** | Betriebsspannung |
 | **GND**    | **GND**   | Masse |
 
@@ -33,8 +38,8 @@ I2C Adresse: 0xC3
 
 | OLED Pin | ESP32 Pin | Beschreibung |
 | -------- | --------- | ------------ |
-| **SDA**  | **PIN 6** | I2C Daten |
-| **SCL**  | **PIN 7** | I2C Clock |
+| **SDA**  | **PIN 18** | I2C2 Daten |
+| **SCL**  | **PIN 19** | I2C2 Clock |
 | **VCC (3.3V)** | **3.3V** | Betriebsspannung |
 | **GND**  | **GND**   | Masse |
 
@@ -58,8 +63,8 @@ RTC-Modul (PCF8523):
 
 | RTC-Modul Pin | ESP32 Pin | Beschreibung |
 | ------------- | --------- | ------------ |
-| **SDA**       | **PIN 6** | I2C Daten |
-| **SCL**       | **PIN 7** | I2C Clock |
+| **SDA**       | **PIN 6** | I2C1 Daten |
+| **SCL**       | **PIN 7** | I2C1 Clock |
 | **VCC (3.3V)** | **3.3V** | Betriebsspannung (5V möglich, 3.3V empfohlen) |
 | **GND**       | **GND**   | Masse |
 
