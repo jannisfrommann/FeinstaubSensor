@@ -1,5 +1,11 @@
 # Feinstaubmesssystem, basierend auf ESP32-C6-DevBoard
 
+**Informationen**
+
+Der Sensor ist auffinbar unter https://sensor.community/de/ als Sensor #96949.
+
+Registriert ist der Sensor hier : https://devices.sensor.community/sensors (Anmeldung Erforderlich). Hier können Einstellungen über Standort, Art,... vorgenaommen werden. Hier ist außerdem eine ID zu finden, welche für die API wichtig ist.
+
 📦 Hardwarekomponenten
 
 Es gibt zwei verschiedene I2C Busse um Stabilität zu gewähleisten.
