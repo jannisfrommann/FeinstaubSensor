@@ -11,7 +11,7 @@
 class Hui {
 public:
     // Konstruktor: Pins für Encoder (CLK, DT, SW)
-    Hui(int enc_clk, int enc_dt, int enc_sw);
+    Hui(int enc_clk, int enc_dt, int enc_sw, TwoWire &i2c);
 
     // init display + pins
     void begin();
@@ -26,8 +26,11 @@ public:
     void setWiFiInfo(const String &ip, const String &mode, bool connected);
 
 private:
+    
     // Encoder pins
     int _enc_clk, _enc_dt, _enc_sw;
+
+    TwoWire &_i2c;
 
     // Sensorwerte
     float _pm10;
@@ -42,7 +45,7 @@ private:
     bool _wifiConnected;
 
     // Display
-    Adafruit_SH1106G _display = Adafruit_SH1106G(128, 64, &Wire);
+    Adafruit_SH1106G _display;
 
     // Menü / Encoder State
     volatile int _menuIndex;

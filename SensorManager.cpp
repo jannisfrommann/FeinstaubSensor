@@ -4,25 +4,25 @@
 #include <Wire.h>
 #include <Adafruit_BME280.h>
 
-HardwareSerial &sdsSerial = Serial2;
+HardwareSerial sdsSerial(1);
 static Adafruit_BME280 bme;
 //SensorManager sensors(SDS_RX_PIN, SDS_TX_PIN, I2C_SDA_PIN, I2C_SCL_PIN);
 
-SensorManager::SensorManager(int sds_rx, int sds_tx, int sda, int scl)
-: _sds_rx(sds_rx), _sds_tx(sds_tx), _sda(sda), _scl(scl),
+
+
+SensorManager::SensorManager(int sds_rx, int sds_tx, TwoWire &i2c)
+: _sds_rx(sds_rx), _sds_tx(sds_tx), _i2c(i2c),
   _idx(0), _pm25(0), _pm10(0), _temp(0), _hum(0), _press(0) {}
 
 void SensorManager::begin() {
-    Wire.begin(_sda, _scl);
+    Serial.println("sensor begin");
+    
     // bme init: try both addresses
-    if (!bme.begin(BME280_ADDR)) {
-        if (!bme.begin(0x77)) {
-            Serial.println("[SENSOR] BME280 nicht gefunden!");
-        } else {
-            Serial.println("[SENSOR] BME280 auf 0x77 initialisiert.");
-        }
-    } else {
-        Serial.println("[SENSOR] BME280 initialisiert (0x76).");
+   bool bme_ok = false;
+    if (bme.begin(0x76, &_i2c)) {
+        bme_ok = true;
+    } else if (bme.begin(0x77, &_i2c)) {
+        bme_ok = true;
     }
 
     // Serial2 for SDS011

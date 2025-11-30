@@ -3,11 +3,12 @@
 
 #include <Arduino.h>
 #include "config.h"
+#include <Wire.h>
 
 
 class SensorManager {
 public:
-    SensorManager(int sds_rx = SDS_RX_PIN, int sds_tx = SDS_TX_PIN, int sda = I2C_SDA_PIN, int scl = I2C_SCL_PIN);
+    SensorManager(int sds_rx = SDS_RX_PIN, int sds_tx = SDS_TX_PIN, TwoWire &i2c = Wire);
     void begin();
     void update(); // non-blocking, call frequently
 
@@ -19,7 +20,8 @@ public:
     float getPressure();
 
 private:
-    int _sds_rx, _sds_tx, _sda, _scl;
+    int _sds_rx, _sds_tx;
+    TwoWire &_i2c;
 
     // SDS parsing
     static const int FRAME_LEN = 10;

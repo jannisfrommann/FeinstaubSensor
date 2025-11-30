@@ -1,3 +1,4 @@
+#include "Wire.h"
 #include "Hui.h"
 #include "config.h"
 #include <WiFi.h>
@@ -6,21 +7,19 @@
 
 
 // Constructor
-Hui::Hui(int enc_clk, int enc_dt, int enc_sw)
-  : _enc_clk(enc_clk), _enc_dt(enc_dt), _enc_sw(enc_sw),
+Hui::Hui(int enc_clk, int enc_dt, int enc_sw, TwoWire &i2c)
+  : _enc_clk(enc_clk), _enc_dt(enc_dt), _enc_sw(enc_sw), _i2c(i2c),
     _pm10(0), _pm25(0), _temp(0), _hum(0), _press(0),
     _ipAddress("0.0.0.0"), _wifiModeStr("OFF"), _wifiConnected(false),
-    _display(128, 64, &Wire),
     _menuIndex(0), _lastEncMicros(0), _lastA(0),
     _lastButtonState(false), _lastButtonMillis(0),
-    _showWifiUntil(false), _showWifiUntilMs(0)
+    _showWifiUntil(false), _showWifiUntilMs(0),
+    _display(128, 64, &i2c)
 {
 }
 
 void Hui::begin() {
-    // I2C already started by main, but safe to call Wire.begin() again if needed
-    Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
-
+    
      // --- Hardware reset des Displays (Pin 1) ---
     pinMode(DISPLAY_RESET_PIN, OUTPUT);
     digitalWrite(DISPLAY_RESET_PIN, LOW);   // reset aktiv
@@ -31,7 +30,7 @@ void Hui::begin() {
 
     // Use the same initialization pattern you had in ZIP:
     // _display is SH110X from Adafruit_SH110X.h and your ZIP used begin like below:
-    if (!_display.begin(0x3C, true)) {
+    if (!_display.begin(OLED_ADDR, true)) {
         Serial.println("[HUI] Display init fehlgeschlagen");
     } else {
         Serial.println("[HUI] Display ok");
@@ -68,25 +67,34 @@ void Hui::setWiFiInfo(const String &ip, const String &mode, bool connected) {
 
 void Hui::drawCurrent() {
     _display.clearDisplay();
-    _display.setTextSize(1);
+    _display.setTextSize(1.5);
     _display.setCursor(0,0);
 
     switch (_menuIndex) {
         case 0:
+            _display.setTextSize(1);
             _display.println("Feinstaub - PM");
+            _display.println("");
+            _display.setTextSize(2);
             _display.print("PM2.5: "); _display.println(_pm25,1);
             _display.print("PM10:  "); _display.println(_pm10,1);
             break;
         case 1:
+            _display.setTextSize(1);
             _display.println("Umwelt");
-            _display.print("Temp: "); _display.print(_temp,1); _display.println(" C");
-            _display.print("Hum:  "); _display.print(_hum,1); _display.println(" %");
+            _display.println("");
+            
+            _display.print("Temp: "); _display.setTextSize(2); _display.print(_temp,1); _display.setTextSize(1); _display.println(" C");
+            _display.println("");
+            _display.print("Hum:  "); _display.setTextSize(2); _display.print(_hum,1); _display.setTextSize(1); _display.println(" %");
             break;
         case 2:
+            _display.setTextSize(1);
             _display.println("Druck");
-            _display.print("Pressure: "); _display.print(_press,1); _display.println(" hPa");
+            _display.println(""); _display.setTextSize(2); _display.print(_press,1); _display.setTextSize(1); _display.println(" hPa");
             break;
         case 3:
+            _display.setTextSize(1);
             _display.println("Zusammen");
             _display.print("PM2.5:"); _display.print(_pm25,1); _display.print(" PM10:"); _display.println(_pm10,1);
             _display.print("T:"); _display.print(_temp,1); _display.print("C H:"); _display.print(_hum,1); _display.println("%");
@@ -110,23 +118,27 @@ void Hui::drawWiFi() {
 }
 
 void Hui::loop() {
-    unsigned long now = micros();
-    // encoder reading (simple polling, lightweight)
+     static int lastA = HIGH;
     int a = digitalRead(_enc_clk);
-    int b = digitalRead(_enc_dt);
 
-    if (a != _lastA && (micros() - _lastEncMicros) > ENC_DEBOUNCE_US) {
-        _lastEncMicros = micros();
-        if (a != b) {
+    // steigende Flanke auf A
+    if (lastA == LOW && a == HIGH) {
+        int b = digitalRead(_enc_dt);
+
+        if (b == LOW) {
+            // Drehung rechts
             _menuIndex++;
             if (_menuIndex > 3) _menuIndex = 0;
         } else {
+            // Drehung links
             _menuIndex--;
             if (_menuIndex < 0) _menuIndex = 3;
         }
+
         drawCurrent();
     }
-    _lastA = a;
+
+    lastA = a;
 
     // button with debounce (polling)
     bool pressed = digitalRead(_enc_sw) == LOW; // KY-040 pressed = LOW
