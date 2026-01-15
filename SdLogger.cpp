@@ -94,3 +94,26 @@ String SdLogger::getTimestamp() {
     return String(millis() / 1000);
   }
 }
+
+bool SdLogger::streamCsv(WiFiClient &client) {
+  const char *fn = "/feinstaub.csv";
+
+  if (!SD.exists(fn)) return false;
+
+  File f = SD.open(fn, FILE_READ);
+  if (!f) return false;
+
+  uint8_t buf[512];
+  while (f.available()) {
+    size_t n = f.read(buf, sizeof(buf));
+    client.write(buf, n);
+    yield();
+  }
+  f.close();
+
+  SD.remove(fn);   // <-- hier gehört das Löschen hin
+  Serial.println("[SD] CSV streamed & deleted");
+
+  return true;
+}
+

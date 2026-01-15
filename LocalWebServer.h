@@ -12,6 +12,9 @@ public:
   void setSensorValues(float pm10, float pm25, float temp, float hum, float press);
 
 private:
+  
+  
+
   WebServer _server;
   float _pm10, _pm25, _temp, _hum, _press;
 
@@ -21,8 +24,11 @@ private:
   void handleWifi();
   void handleScan();
   void handleSave();
+  void handleLogDownload();
 };
 
 extern LocalWebServer webServer; // optional; define in one place (or in .ino)
+
+
 
 #endif // LOCAL_WEBSERVER_H

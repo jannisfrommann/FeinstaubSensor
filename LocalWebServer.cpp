@@ -1,9 +1,11 @@
 #include "LocalWebServer.h"
 #include "wifiManager.h"
 #include <WiFi.h>
+#include "SdLogger.h"
 
 //LocalWebServer webServer(80); // define global webServer instance (remove other defs in .ino)
 extern WifiManager wifi;   // wir greifen auf das Objekt aus der .ino zu
+extern SdLogger logger;
 
 
 LocalWebServer::LocalWebServer(uint16_t port)
@@ -16,6 +18,7 @@ void LocalWebServer::begin() {
   _server.on("/wifi", [this]() { handleWifi(); });
   _server.on("/scan", std::bind(&LocalWebServer::handleScan, this));
   _server.on("/save", std::bind(&LocalWebServer::handleSave, this));
+  _server.on("/log.csv", [this]() { handleLogDownload(); });
   _server.onNotFound([this]() { _server.send(404, "text/plain", "Not found"); }); // correct capture
   _server.begin();
   Serial.println("[HTTP] server started");
@@ -38,6 +41,7 @@ void LocalWebServer::handleRoot() {
   html += "<p><strong>Hum:</strong> " + String(_hum,1) + " %</p>";
   html += "<p><strong>Press:</strong> " + String(_press,1) + " hPa</p>";
   html += "<p><a href='/data.json'>JSON</a></p>";
+  html += "<p><a href='/log.csv'>CSV herunterladen & löschen</a></p>";
   html += "<p><a href='/wifi'>WiFi konfigurieren</a></p>";
   html += "</body></html>";
   _server.send(200, "text/html", html);
@@ -53,6 +57,22 @@ void LocalWebServer::handleJson() {
   js += "}";
   _server.send(200, "application/json", js);
 }
+
+void LocalWebServer::handleLogDownload() {
+  WiFiClient client = _server.client();
+
+  // HTTP Header manuell senden
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/csv");
+  client.println("Content-Disposition: attachment; filename=feinstaub.csv");
+  client.println("Connection: close");
+  client.println();
+
+  if (!logger.streamCsv(client)) {
+    Serial.println("[HTTP] CSV download failed");
+  }
+}
+
 
 // Uses WifiManager async-scan. Waits up to ~7s for results (non-destructive).
 void LocalWebServer::handleScan() {

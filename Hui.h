@@ -61,6 +61,9 @@ private:
     unsigned long _showWifiUntilMs;
     const unsigned long WIFI_SHOW_MS = 5000UL;
 
+    bool _wifiScreenActive;
+
+
     //SH110X _display = SH110X(128, 64, &Wire);
 
     // helper
